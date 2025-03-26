@@ -1,2 +1,10 @@
 .qodo
 .vs/
+Library/
+Temp/
+Logs/
+UserSettings/
+*.csproj
+*.sln
+*.unitypackage
+
