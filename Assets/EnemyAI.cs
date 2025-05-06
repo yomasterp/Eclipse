@@ -28,6 +28,8 @@ public class EnemyAI : MonoBehaviour
             Debug.Log($"{name} – Chasing Player…");
             bool ok = agent.SetDestination(player.position);
             Debug.Log($"{name} – SetDestination returned {ok}, dest={agent.destination}");
+            Debug.Log($"{name}: isOnNavMesh = {agent.isOnNavMesh}");
+
         }
         else
         {

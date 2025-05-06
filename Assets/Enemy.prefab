@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1948290222953149971}
   - component: {fileID: -2213664032501240280}
   - component: {fileID: -9011710030036056330}
+  - component: {fileID: -1575895568610729836}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -151,3 +152,19 @@ MonoBehaviour:
   maxRange: 50
   flashColor: {r: 1, g: 0, b: 0, a: 1}
   deathParticles: {fileID: 0}
+--- !u!114 &-1575895568610729836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5021317653182474502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08f2f08b3b8036144b5108d7c5af0b02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectionRange: 10
+  wanderRadius: 5
+  wanderInterval: 3
+  player: {fileID: 0}
