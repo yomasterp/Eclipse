@@ -147,7 +147,10 @@ namespace RealtimeCSG
 					buttonArea.y = 2;
 					buttonArea.height = 13;
 					buttonArea.width = 13;
-					if (GUI.Button(buttonArea, GUIContent.none, "WinBtnClose"))
+                    var closeStyle = GUI.skin.FindStyle("WinBtnClose");
+                    if (closeStyle == null) closeStyle = GUI.skin.button;
+
+                    if (GUI.Button(buttonArea, GUIContent.none, closeStyle))
 						EditModeToolWindowSceneGUI.GetWindow();
 					TooltipUtility.SetToolTip(CSG_GUIStyleUtility.PopOutTooltip, buttonArea); 
 

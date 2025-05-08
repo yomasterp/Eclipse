@@ -3,44 +3,85 @@ using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour
 {
+    [Header("Detection & Movement")]
     public float detectionRange = 10f;
     public float wanderRadius = 5f;
     public float wanderInterval = 3f;
 
+    [Header("Attack Settings")]
+    public float attackRange = 2f;      // how close before we start attacking
+    public float attackDamage = 100f;     // damage per attack
+    public float attackCooldown = 1f;      // seconds between attacks
+
     private NavMeshAgent agent;
-    public Transform player;   // expose in Inspector instead of FindWithTag
-    private float timer;
+    public Transform player;                // assign in Inspector
+    private PlayerHealth playerHealth;      // cached reference
+    private float wanderTimer;
+    private float attackTimer;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        wanderTimer = wanderInterval;
+        attackTimer = attackCooldown;
+
         if (player == null)
             Debug.LogError($"{name} – Player transform is not assigned!");
-        timer = wanderInterval;
+
+        // try to cache PlayerHealth
+        if (player != null)
+        {
+            playerHealth = player.GetComponent<PlayerHealth>();
+            if (playerHealth == null)
+                Debug.LogError($"{name} – No PlayerHealth component found on {player.name}!");
+        }
     }
 
     void Update()
     {
         if (agent == null || player == null) return;
-        float dist = Vector3.Distance(transform.position, player.position);
-        if (dist <= detectionRange)
-        {
-            Debug.Log($"{name} – Chasing Player…");
-            bool ok = agent.SetDestination(player.position);
-            Debug.Log($"{name} – SetDestination returned {ok}, dest={agent.destination}");
-            Debug.Log($"{name}: isOnNavMesh = {agent.isOnNavMesh}");
 
+        float dist = Vector3.Distance(transform.position, player.position);
+
+        // 1) If within attackRange ? stop and attack
+        if (dist <= attackRange)
+        {
+            agent.isStopped = true;
+            attackTimer += Time.deltaTime;
+
+            if (attackTimer >= attackCooldown)
+            {
+                DoAttack();
+                attackTimer = 0f;
+            }
         }
+        // 2) Else if within detectionRange ? chase
+        else if (dist <= detectionRange)
+        {
+            agent.isStopped = false;
+            agent.SetDestination(player.position);
+            wanderTimer = wanderInterval;  // reset wandering
+        }
+        // 3) Else ? wander
         else
         {
-            Debug.Log($"{name} – Wandering");
-            if (timer >= wanderInterval)
+            agent.isStopped = false;
+            wanderTimer += Time.deltaTime;
+            if (wanderTimer >= wanderInterval)
             {
                 Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
                 agent.SetDestination(newPos);
-                timer = 0;
+                wanderTimer = 0f;
             }
-            timer += Time.deltaTime;
+        }
+    }
+
+    private void DoAttack()
+    {
+        if (playerHealth != null)
+        {
+            Debug.Log($"{name} attacks {player.name} for {attackDamage} damage!");
+            playerHealth.TakeDamage(attackDamage);
         }
     }
 
