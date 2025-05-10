@@ -17,8 +17,11 @@ public class PlayerMovement : MonoBehaviour
     private float dashCooldownTimer = 0f;
     private Vector3 dashDirection;
 
+    private AudioSource footstepAudio;
+
     void Start()
     {
+        footstepAudio = GetComponent<AudioSource>();
         controller = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -48,6 +51,8 @@ public class PlayerMovement : MonoBehaviour
             controller.Move(dashDirection * dashSpeed * Time.deltaTime);
             dashTimer -= Time.deltaTime;
             if (dashTimer <= 0f) isDashing = false;
+
+            if (footstepAudio.isPlaying) footstepAudio.Stop();
             return;
         }
 
@@ -55,6 +60,20 @@ public class PlayerMovement : MonoBehaviour
         float moveZ = Input.GetAxis("Vertical");
         Vector3 move = transform.right * moveX + transform.forward * moveZ;
         controller.Move(move * speed * Time.deltaTime);
+
+        if (move.magnitude > 0.1f)
+        {
+            if (!footstepAudio.isPlaying)
+            {
+                footstepAudio.Play();
+            }
+        }
+        else {
+            if (footstepAudio.isPlaying)
+            {
+                footstepAudio.Stop();
+            }
+        }
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && move != Vector3.zero && dashCooldownTimer <= 0f)
         {
