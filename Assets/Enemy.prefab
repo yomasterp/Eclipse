@@ -16,7 +16,6 @@ GameObject:
   - component: {fileID: -9011710030036056330}
   - component: {fileID: -1575895568610729836}
   - component: {fileID: 1984730030409746706}
-  - component: {fileID: 6876698322164539758}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -195,28 +194,6 @@ MonoBehaviour:
   deathParticles: {fileID: 0}
   glintPrefab: {fileID: 0}
   glintDropAmount: 1
---- !u!95 &6876698322164539758
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5021317653182474502}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: cafb561f6f3432f41b21f467b9b68bee, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &6979950816910660899
 PrefabInstance:
   m_ObjectHideFlags: 0
