@@ -18,10 +18,14 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 dashDirection;
 
     private AudioSource footstepAudio;
+    private AudioSource audioSource;
+    public AudioClip dashSound;
 
     void Start()
     {
-        footstepAudio = GetComponent<AudioSource>();
+        AudioSource[] audioSources = GetComponents<AudioSource>();
+        footstepAudio = audioSources[0];
+        audioSource = audioSources[1];
         controller = GetComponent<CharacterController>();
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -87,6 +91,11 @@ public class PlayerMovement : MonoBehaviour
         dashTimer = dashDuration;
         dashCooldownTimer = dashCooldown;
         dashDirection = direction;
+
+        if (dashSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(dashSound);
+        }
     }
 
     void CheckDashHit()
