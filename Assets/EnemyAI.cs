@@ -3,6 +3,8 @@ using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour
 {
+    private Animator animator;
+
     [Header("Detection & Movement")]
     public float detectionRange = 10f;
     public float wanderRadius = 5f;
@@ -10,7 +12,7 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Attack Settings")]
     public float attackRange = 2f;      // how close before we start attacking
-    public float attackDamage = 50f;     // damage per attack
+    public float attackDamage = 100f;     // damage per attack
     public float attackCooldown = 1f;      // seconds between attacks
 
     private NavMeshAgent agent;
@@ -19,8 +21,13 @@ public class EnemyAI : MonoBehaviour
     private float wanderTimer;
     private float attackTimer;
 
+
     void Start()
     {
+        animator = GetComponentInChildren<Animator>();
+        if (animator == null)
+            Debug.LogError($"{name} - No Animator Found");
+
         agent = GetComponent<NavMeshAgent>();
         wanderTimer = wanderInterval;
         attackTimer = attackCooldown;
@@ -47,6 +54,9 @@ public class EnemyAI : MonoBehaviour
         if (dist <= attackRange)
         {
             agent.isStopped = true;
+            animator.SetBool("isWalking", false);
+            animator.SetBool("isAttacking", true);
+            animator.SetBool("isRunning", false);
             attackTimer += Time.deltaTime;
 
             if (attackTimer >= attackCooldown)
@@ -59,6 +69,9 @@ public class EnemyAI : MonoBehaviour
         else if (dist <= detectionRange)
         {
             agent.isStopped = false;
+            animator.SetBool("isWalking", false);
+            animator.SetBool("isRunning", true);
+            animator.SetBool("isAttacking", false);
             agent.SetDestination(player.position);
             wanderTimer = wanderInterval;  // reset wandering
         }
@@ -66,6 +79,8 @@ public class EnemyAI : MonoBehaviour
         else
         {
             agent.isStopped = false;
+            animator.SetBool("isAttacking", false);
+            animator.SetBool("isRunning", false);
             wanderTimer += Time.deltaTime;
             if (wanderTimer >= wanderInterval)
             {
@@ -73,6 +88,9 @@ public class EnemyAI : MonoBehaviour
                 agent.SetDestination(newPos);
                 wanderTimer = 0f;
             }
+
+            animator.SetBool("isWalking", true);
+
         }
     }
 
