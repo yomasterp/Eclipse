@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class EnemyHealth : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class EnemyHealth : MonoBehaviour
     public float maxRange = 50f;
     public Color flashColor = Color.white;
     public GameObject deathParticles;
+    public static event Action OnEnemyKilled;
 
     [Header("Glint Drop")]
     public GameObject glintPrefab;    // assign your Glint prefab here
@@ -30,6 +32,7 @@ public class EnemyHealth : MonoBehaviour
 
         StartCoroutine(ExplodeFlashAndDie());
     }
+
 
     IEnumerator ExplodeFlashAndDie()
     {
@@ -67,6 +70,7 @@ public class EnemyHealth : MonoBehaviour
         }
 
         // 4) finally destroy the enemy
+        OnEnemyKilled?.Invoke();
         Destroy(gameObject);
     }
 }

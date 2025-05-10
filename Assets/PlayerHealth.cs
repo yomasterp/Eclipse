@@ -1,5 +1,6 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;  // only if you want to reload or change scenes
+using UnityEngine.UI;           // <-- for Slider
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class PlayerHealth : MonoBehaviour
     [Tooltip("Assign your Game Over panel here")]
     public GameObject deathScreen;
 
+    [Tooltip("Drag in your HealthBar slider here")]
+    public Slider healthBar;
+
     private bool isDead = false;
 
     void Start()
@@ -19,6 +23,12 @@ public class PlayerHealth : MonoBehaviour
 
         if (deathScreen != null)
             deathScreen.SetActive(false);
+
+        if (healthBar != null)
+        {
+            healthBar.maxValue = maxHealth;
+            healthBar.value = currentHealth;
+        }
     }
 
     /// <summary>
@@ -29,6 +39,10 @@ public class PlayerHealth : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= amount;
+
+        if (healthBar != null)
+            healthBar.value = currentHealth;
+
         Debug.Log($"{name} took {amount} damage. Remaining health: {currentHealth}");
 
         if (currentHealth <= 0f)
@@ -40,20 +54,22 @@ public class PlayerHealth : MonoBehaviour
         isDead = true;
         Debug.Log($"{name} has died.");
 
-        // 1) Show your death screen
+        // Try to hand off to UIManager if available
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.ShowGameOver();
+            return;
+        }
+
+        // Fallback: use your existing panel + pause
         if (deathScreen != null)
             deathScreen.SetActive(true);
 
-        // 2) Stop time (optional)
         Time.timeScale = 0f;
-
-        // 3) (Optional) Unlock cursor so user can click UI buttons
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        // 4) (Optional) If you have a separate Game Over scene:
+        // Or, if you want to load a GameOver scene:
         // SceneManager.LoadScene("GameOver");
     }
-
-    // ... (other methods unchanged)
 }
