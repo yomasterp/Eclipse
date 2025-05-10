@@ -10,7 +10,7 @@ public class EnemyAI : MonoBehaviour
 
     [Header("Attack Settings")]
     public float attackRange = 2f;      // how close before we start attacking
-    public float attackDamage = 100f;     // damage per attack
+    public float attackDamage = 50f;     // damage per attack
     public float attackCooldown = 1f;      // seconds between attacks
 
     private NavMeshAgent agent;

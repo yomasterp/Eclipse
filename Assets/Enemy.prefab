@@ -192,6 +192,8 @@ MonoBehaviour:
   maxRange: 50
   flashColor: {r: 1, g: 0, b: 0, a: 1}
   deathParticles: {fileID: 0}
+  glintPrefab: {fileID: 0}
+  glintDropAmount: 1
 --- !u!1001 &6979950816910660899
 PrefabInstance:
   m_ObjectHideFlags: 0
