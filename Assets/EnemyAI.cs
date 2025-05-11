@@ -50,7 +50,6 @@ public class EnemyAI : MonoBehaviour
         if (agent == null || player == null) return;
 
         float dist = Vector3.Distance(transform.position, player.position);
-        animator.SetBool("isWalking", false);
 
         // 1) Attack state
         if (dist <= attackRange)
