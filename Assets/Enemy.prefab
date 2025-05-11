@@ -151,7 +151,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flashDuration: 3
   startIntensity: 50
-  maxRange: 50
+  maxRange: 100
   flashColor: {r: 1, g: 0, b: 0, a: 1}
   deathParticles: {fileID: 0}
   glintPrefab: {fileID: 4526221279773007156, guid: f772604540a0f864b8ea4e00f70a85da, type: 3}
@@ -168,10 +168,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08f2f08b3b8036144b5108d7c5af0b02, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  footstepClip: {fileID: 8300000, guid: 9ca068a0eb2509b48a33bf2a6cc9e22a, type: 3}
+  stepDistance: 1
   detectionRange: 10
   wanderRadius: 5
   wanderInterval: 3
+  isDead: 1
   attackRange: 2
+  initialAttackDelay: 2
   attackDamage: 10
   attackCooldown: 1
   player: {fileID: 0}

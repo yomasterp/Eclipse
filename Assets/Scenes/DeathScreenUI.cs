@@ -6,7 +6,7 @@ public class DeathScreenUI : MonoBehaviour
     public void OnRestartLevel()
     {
         Scene currentScene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(currentScene.name);
+        SceneManager.LoadScene("SampleScene");
     }
 
     public void OnReturnHome()

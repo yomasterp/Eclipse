@@ -13,4 +13,9 @@ public class HomeScreenUI : MonoBehaviour
     {
         Application.Quit();
     }
+
+    public void OnControls()
+    {
+        SceneManager.LoadScene("ControlsScene");
+    }
 }

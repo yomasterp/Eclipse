@@ -36,6 +36,9 @@ public class EnemyHealth : MonoBehaviour
         var col = GetComponent<Collider>();
         if (col != null) col.enabled = false;
 
+        GetComponent<EnemyAI>()?.OnDeath();
+
+
         // 4) hide all renderers immediately
         foreach (var rend in GetComponentsInChildren<Renderer>())
             rend.enabled = false;
@@ -44,12 +47,21 @@ public class EnemyHealth : MonoBehaviour
         if (deathParticles != null)
             Instantiate(deathParticles, transform.position, Quaternion.identity);
 
+
         // 6) continue with your flash & glint drop coroutine
         StartCoroutine(ExplodeFlashAndDie());
     }
 
+
+
     private IEnumerator ExplodeFlashAndDie()
     {
+        // spawn glints
+        if (glintPrefab != null)
+        {
+            for (int i = 0; i < glintDropAmount; i++)
+                Instantiate(glintPrefab, transform.position, Quaternion.identity);
+        }
         // flash light
         var flashGO = new GameObject("GlobalDeathFlash");
         flashGO.transform.position = transform.position;
@@ -71,15 +83,11 @@ public class EnemyHealth : MonoBehaviour
         }
         Destroy(flashGO);
 
-        // spawn glints
-        if (glintPrefab != null)
-        {
-            for (int i = 0; i < glintDropAmount; i++)
-                Instantiate(glintPrefab, transform.position, Quaternion.identity);
-        }
+        
 
         // fire kill event and destroy
         OnEnemyKilled?.Invoke();
         Destroy(gameObject);
+        
     }
 }
