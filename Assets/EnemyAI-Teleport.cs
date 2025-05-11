@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+﻿// EnemyAI_T.cs
+using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyAI : MonoBehaviour
+public class EnemyAI_T : MonoBehaviour
 {
     private Animator animator;
 
@@ -9,6 +10,10 @@ public class EnemyAI : MonoBehaviour
     public float detectionRange = 10f;
     public float wanderRadius = 5f;
     public float wanderInterval = 3f;
+
+    [Header("Teleport Settings")]
+    [Tooltip("How far behind the player to teleport when chase starts")]
+    public float teleportOffsetDistance = 2f;
 
     [Header("Attack Settings")]
     public float attackRange = 2f;         // how close before we start attacking
@@ -25,6 +30,9 @@ public class EnemyAI : MonoBehaviour
     private float attackTimer;
     private bool inMeleeRange = false;
     private float rangeEnterTime;
+
+    // teleport‐only‐once flag
+    private bool hasTeleported = false;
 
     void Start()
     {
@@ -54,22 +62,20 @@ public class EnemyAI : MonoBehaviour
         // 1) Attack state
         if (dist <= attackRange)
         {
-            // just entered melee range?
+            hasTeleported = false;  // allow teleport next time
+
             if (!inMeleeRange)
             {
                 inMeleeRange = true;
                 rangeEnterTime = Time.time;
-                attackTimer = 0f;    // reset cooldown timer
+                attackTimer = 0f;
             }
 
             agent.isStopped = true;
             animator.SetBool("isWalking", false);
             animator.SetBool("isAttacking", true);
 
-            // how long have we been in range?
             float timeInRange = Time.time - rangeEnterTime;
-
-            // only start ticking cooldown after initial delay
             if (timeInRange >= initialAttackDelay)
             {
                 attackTimer += Time.deltaTime;
@@ -83,19 +89,24 @@ public class EnemyAI : MonoBehaviour
         // 2) Chase state
         else if (dist <= detectionRange)
         {
-            // reset melee‐range flag so next entry re‐triggers the delay
             inMeleeRange = false;
+
+            if (!hasTeleported)
+            {
+                TeleportBehindPlayer();
+                hasTeleported = true;
+            }
 
             agent.isStopped = false;
             animator.SetBool("isWalking", true);
             animator.SetBool("isAttacking", false);
-
             agent.SetDestination(player.position);
             wanderTimer = wanderInterval;
         }
         // 3) Wander state
         else
         {
+            hasTeleported = false;
             inMeleeRange = false;
 
             agent.isStopped = false;
@@ -111,6 +122,16 @@ public class EnemyAI : MonoBehaviour
 
             animator.SetBool("isWalking", true);
         }
+    }
+
+    private void TeleportBehindPlayer()
+    {
+        Vector3 behindPos = player.position - player.forward * teleportOffsetDistance;
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(behindPos, out hit, 1f, NavMesh.AllAreas))
+            agent.Warp(hit.position);
+        else
+            agent.Warp(behindPos);
     }
 
     private void DoAttack()
