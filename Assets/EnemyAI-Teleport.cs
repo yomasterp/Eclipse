@@ -1,10 +1,12 @@
-﻿// EnemyAI_T.cs
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyAI_T : MonoBehaviour
+public class EnemyAI_Teleport : MonoBehaviour
 {
     private Animator animator;
+    private NavMeshAgent agent;
+    public Transform player;               // assign in Inspector
+    private PlayerHealth playerHealth;         // cached reference
 
     [Header("Detection & Movement")]
     public float detectionRange = 10f;
@@ -12,44 +14,40 @@ public class EnemyAI_T : MonoBehaviour
     public float wanderInterval = 3f;
 
     [Header("Teleport Settings")]
-    [Tooltip("How far behind the player to teleport when chase starts")]
+    [Tooltip("How far behind the player to blink when chase begins")]
     public float teleportOffsetDistance = 2f;
 
     [Header("Attack Settings")]
-    public float attackRange = 2f;         // how close before we start attacking
-    public float initialAttackDelay = 2f;  // how long to wait on first attack
-    public float attackDamage = 50f;       // damage per attack
-    public float attackCooldown = 1f;      // seconds between subsequent attacks
+    public float attackRange = 2f;     // how close before we start attacking
+    public float initialAttackDelay = 2f;     // wait this long before first hit
+    public float attackDamage = 50f;
+    public float attackCooldown = 1f;
 
-    private NavMeshAgent agent;
-    public Transform player;               // assign in Inspector
-    private PlayerHealth playerHealth;     // cached reference
-
-    // timers & state
+    // runtime state
     private float wanderTimer;
     private float attackTimer;
-    private bool inMeleeRange = false;
+    private bool inMeleeRange;
     private float rangeEnterTime;
-
-    // teleport‐only‐once flag
-    private bool hasTeleported = false;
+    private bool hasTeleported;
 
     void Start()
     {
         animator = GetComponentInChildren<Animator>();
-        if (animator == null) Debug.LogError($"{name} - No Animator Found");
+        if (animator == null) Debug.LogError($"{name} – no Animator found!");
 
         agent = GetComponent<NavMeshAgent>();
         wanderTimer = wanderInterval;
         attackTimer = 0f;
+        inMeleeRange = false;
+        hasTeleported = false;
 
         if (player == null)
-            Debug.LogError($"{name} – Player transform is not assigned!");
+            Debug.LogError($"{name} – Player transform not assigned!");
         else
         {
             playerHealth = player.GetComponent<PlayerHealth>();
             if (playerHealth == null)
-                Debug.LogError($"{name} – No PlayerHealth component found on {player.name}!");
+                Debug.LogError($"{name} – No PlayerHealth on {player.name}!");
         }
     }
 
@@ -62,7 +60,8 @@ public class EnemyAI_T : MonoBehaviour
         // 1) Attack state
         if (dist <= attackRange)
         {
-            hasTeleported = false;  // allow teleport next time
+            // reset teleport flag for next chase
+            hasTeleported = false;
 
             if (!inMeleeRange)
             {
@@ -71,7 +70,9 @@ public class EnemyAI_T : MonoBehaviour
                 attackTimer = 0f;
             }
 
-            agent.isStopped = true;
+            if (agent.isOnNavMesh)
+                agent.isStopped = true;
+
             animator.SetBool("isWalking", false);
             animator.SetBool("isAttacking", true);
 
@@ -91,16 +92,21 @@ public class EnemyAI_T : MonoBehaviour
         {
             inMeleeRange = false;
 
+            // teleport only once per chase-entry
             if (!hasTeleported)
             {
                 TeleportBehindPlayer();
                 hasTeleported = true;
             }
 
-            agent.isStopped = false;
-            animator.SetBool("isWalking", true);
-            animator.SetBool("isAttacking", false);
-            agent.SetDestination(player.position);
+            if (agent.isOnNavMesh)
+            {
+                agent.isStopped = false;
+                animator.SetBool("isWalking", true);
+                animator.SetBool("isAttacking", false);
+                agent.SetDestination(player.position);
+            }
+
             wanderTimer = wanderInterval;
         }
         // 3) Wander state
@@ -109,29 +115,39 @@ public class EnemyAI_T : MonoBehaviour
             hasTeleported = false;
             inMeleeRange = false;
 
-            agent.isStopped = false;
-            animator.SetBool("isAttacking", false);
-
-            wanderTimer += Time.deltaTime;
-            if (wanderTimer >= wanderInterval)
+            if (agent.isOnNavMesh)
             {
-                Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
-                agent.SetDestination(newPos);
-                wanderTimer = 0f;
-            }
+                agent.isStopped = false;
+                animator.SetBool("isAttacking", false);
 
-            animator.SetBool("isWalking", true);
+                wanderTimer += Time.deltaTime;
+                if (wanderTimer >= wanderInterval)
+                {
+                    Vector3 newPos = RandomNavSphere(transform.position, wanderRadius, -1);
+                    agent.SetDestination(newPos);
+                    wanderTimer = 0f;
+                }
+
+                animator.SetBool("isWalking", true);
+            }
         }
     }
 
     private void TeleportBehindPlayer()
     {
-        Vector3 behindPos = player.position - player.forward * teleportOffsetDistance;
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(behindPos, out hit, 1f, NavMesh.AllAreas))
+        // Desired spot
+        Vector3 behind = player.position - player.forward * teleportOffsetDistance;
+
+        // Try sampling the NavMesh at that spot
+        if (NavMesh.SamplePosition(behind, out NavMeshHit hit, 1f, NavMesh.AllAreas))
+        {
             agent.Warp(hit.position);
+        }
         else
-            agent.Warp(behindPos);
+        {
+            // fallback to raw teleport + warp
+            agent.Warp(behind);
+        }
     }
 
     private void DoAttack()
