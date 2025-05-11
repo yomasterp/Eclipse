@@ -11,6 +11,7 @@ public class DeathScreenUI : MonoBehaviour
 
     public void OnReturnHome()
     {
+        Time.timeScale = 1f;
         SceneManager.LoadScene("HomeScreen");
     }
 }
