@@ -55,11 +55,7 @@ public class PlayerHealth : MonoBehaviour
         Debug.Log($"{name} has died.");
 
         // Try to hand off to UIManager if available
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.ShowGameOver();
-            return;
-        }
+        SceneManager.LoadScene("DeathScreen");
 
         // Fallback: use your existing panel + pause
         if (deathScreen != null)

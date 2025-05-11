@@ -52,7 +52,7 @@ public class UIManager : MonoBehaviour
         healthBar.value = currentHealth;
     }
 
-    public void ShowGameOver()
+    /*public void ShowGameOver()
     {
         gameOverPanel.SetActive(true);
         // optionally: Time.timeScale = 0;
@@ -71,6 +71,7 @@ public class UIManager : MonoBehaviour
         // 2) Reload the active scene
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+    */
 
     /// <summary>
     /// Call this to update the on-screen kill counter
@@ -79,6 +80,11 @@ public class UIManager : MonoBehaviour
     {
         if (killText != null)
             killText.text = $"Kills: {current}/{required}";
+        if (current == 8) {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            SceneManager.LoadScene("Victory2"); 
+        }
     }
 
 

@@ -11,16 +11,22 @@ public class GlintPickup : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
-        // 1) Add to the player’s GlintCollector (if you still need it)
-        var collector = other.GetComponent<GlintCollector>();
-        if (collector != null)
-            collector.AddGlints(glintValue);
+        // 1) Use the singleton directly so there’s only one source of truth
+        if (GlintCollector.Instance != null)
+        {
+            GlintCollector.Instance.AddGlints(glintValue);
+        }
+        else
+        {
+            Debug.LogError("GlintCollector.Instance is null! Make sure a GlintCollector exists in the scene.");
+        }
+
 
         // 2) Update the UI counter
         if (UIManager.Instance != null)
             UIManager.Instance.AddGlints(glintValue);
 
-        // 3) Destroy the pickup object
+        // 3) Destroy the pickup
         Destroy(gameObject);
     }
 }
