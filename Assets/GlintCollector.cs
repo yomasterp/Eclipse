@@ -23,4 +23,16 @@ public class GlintCollector : MonoBehaviour
         Debug.Log($"Glints collected: {glintCount}");
         onGlintCountChanged?.Invoke(glintCount);
     }
+
+    public bool SpendGlints(int amount)
+    {
+        if (glintCount >= amount)
+        {
+            glintCount -= amount;
+            onGlintCountChanged?.Invoke(glintCount);
+            return true;
+        }
+        return false;
+    }
+
 }
