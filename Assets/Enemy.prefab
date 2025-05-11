@@ -172,7 +172,7 @@ MonoBehaviour:
   wanderRadius: 5
   wanderInterval: 3
   attackRange: 2
-  attackDamage: 50
+  attackDamage: 10
   attackCooldown: 1
   player: {fileID: 0}
 --- !u!114 &1984730030409746706
