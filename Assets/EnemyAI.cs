@@ -50,6 +50,7 @@ public class EnemyAI : MonoBehaviour
         if (agent == null || player == null) return;
 
         float dist = Vector3.Distance(transform.position, player.position);
+        animator.SetBool("isWalking", false);
 
         // 1) Attack state
         if (dist <= attackRange)
@@ -63,10 +64,9 @@ public class EnemyAI : MonoBehaviour
             }
 
             agent.isStopped = true;
-            animator.SetBool("isWalking", false);
-            animator.SetBool("isAttacking", true);
+            animator.SetBool("isWalking", false);  // Ensure walking is false
+            animator.SetBool("isAttacking", true); // Trigger attack animation
 
-            // how long have we been in range?
             float timeInRange = Time.time - rangeEnterTime;
 
             // only start ticking cooldown after initial delay
@@ -76,19 +76,19 @@ public class EnemyAI : MonoBehaviour
                 if (attackTimer >= attackCooldown)
                 {
                     DoAttack();
-                    attackTimer = 0f;
+                    attackTimer = 0f;  // Reset attack timer
                 }
             }
         }
         // 2) Chase state
         else if (dist <= detectionRange)
         {
-            // reset melee‐range flag so next entry re‐triggers the delay
+            // Reset melee-range flag
             inMeleeRange = false;
 
             agent.isStopped = false;
-            animator.SetBool("isWalking", true);
-            animator.SetBool("isAttacking", false);
+            animator.SetBool("isWalking", true);    // Walking animation active
+            animator.SetBool("isAttacking", false); // Ensure not attacking
 
             agent.SetDestination(player.position);
             wanderTimer = wanderInterval;
@@ -99,7 +99,7 @@ public class EnemyAI : MonoBehaviour
             inMeleeRange = false;
 
             agent.isStopped = false;
-            animator.SetBool("isAttacking", false);
+            animator.SetBool("isAttacking", false);  // Not attacking
 
             wanderTimer += Time.deltaTime;
             if (wanderTimer >= wanderInterval)
@@ -109,7 +109,7 @@ public class EnemyAI : MonoBehaviour
                 wanderTimer = 0f;
             }
 
-            animator.SetBool("isWalking", true);
+            animator.SetBool("isWalking", true);  // Wander animation
         }
     }
 
