@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -16,6 +17,10 @@ public class PlayerMovement : MonoBehaviour
     private float dashTimer = 0f;
     private float dashCooldownTimer = 0f;
     private Vector3 dashDirection;
+    public bool canLook = true;
+
+    public TMP_Text speedText;
+    public TMP_Text dashText;
 
     private AudioSource footstepAudio;
     private AudioSource audioSource;
@@ -34,7 +39,10 @@ public class PlayerMovement : MonoBehaviour
     {
         HandleDashCooldown();
         HandleMovement();
-        HandleMouseLook();
+        if (canLook) HandleMouseLook();
+
+        if (speedText) speedText.text = $"Speed: {speed:F1}";
+        if (dashText) dashText.text = $"Dash:  {dashSpeed:F1}";
 
         if (isDashing)
         {
@@ -116,6 +124,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMouseLook()
     {
+
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
