@@ -40,7 +40,7 @@ public class ShopUI : MonoBehaviour
             {
                 Debug.LogWarning("Not enough glints to upgrade speed!");
             }
-            
+
         });
 
         upgradeDashButton.onClick.AddListener(() =>

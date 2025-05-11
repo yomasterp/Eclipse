@@ -16,8 +16,12 @@ public class PlayerMovement : MonoBehaviour
     [Header("Look")]
     public float mouseSensitivity = 2f;
 
-    // Public read-only flag
+    // expose as read-only
     public bool IsDashing { get; private set; }
+
+    // UI
+    public TMP_Text speedText;
+    public TMP_Text dashText;
 
     // internal state
     private CharacterController controller;
@@ -27,9 +31,6 @@ public class PlayerMovement : MonoBehaviour
     private Vector3 dashDirection;
     public bool canLook = true;
 
-    public TMP_Text speedText;
-    public TMP_Text dashText;
-
     private AudioSource footstepAudio;
     private AudioSource audioSource;
     public AudioClip dashSound;
@@ -38,7 +39,7 @@ public class PlayerMovement : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
 
-        // grab the two AudioSources (if you have footsteps + SFX)
+        // footsteps + SFX
         var sources = GetComponents<AudioSource>();
         if (sources.Length >= 2)
         {
@@ -54,15 +55,14 @@ public class PlayerMovement : MonoBehaviour
         HandleDashCooldown();
         HandleMovement();
 
-        if (canLook) HandleMouseLook();
+        if (canLook)
+            HandleMouseLook();
 
-        if (speedText) speedText.text = $"Speed: {speed:F1}";
-        if (dashText) dashText.text = $"Dash:  {dashSpeed:F1}";
-
-        if (isDashing)
-        {
-            CheckDashHit();
-        }
+        // update UI
+        if (speedText != null)
+            speedText.text = $"Speed: {speed:F1}";
+        if (dashText != null)
+            dashText.text = $"Dash:  {dashSpeed:F1}";
     }
 
     void HandleDashCooldown()
@@ -73,7 +73,7 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMovement()
     {
-        // — Dashing —
+        // Dashing
         if (IsDashing)
         {
             controller.Move(dashDirection * dashSpeed * Time.deltaTime);
@@ -86,7 +86,7 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        // — Regular Move —
+        // Regular movement
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
         Vector3 move = transform.right * moveX + transform.forward * moveZ;
@@ -101,10 +101,10 @@ public class PlayerMovement : MonoBehaviour
         else if (footstepAudio != null && footstepAudio.isPlaying)
             footstepAudio.Stop();
 
-        // — Dash Input —
-        if (Input.GetKeyDown(KeyCode.LeftShift)
-            && move.sqrMagnitude > 0.01f
-            && dashCooldownTimer <= 0f)
+        // Dash input
+        if (Input.GetKeyDown(KeyCode.LeftShift) &&
+            move.sqrMagnitude > 0.01f &&
+            dashCooldownTimer <= 0f)
         {
             StartDash(move.normalized);
         }
@@ -126,12 +126,11 @@ public class PlayerMovement : MonoBehaviour
         IsDashing = false;
     }
 
-    // CharacterController collisions come through here
+    // Called automatically by CharacterController on collisions
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (!IsDashing) return;
 
-        // if the thing we hit has EnemyHealth, deal dashDamage
         var eh = hit.collider.GetComponent<EnemyHealth>();
         if (eh != null)
         {
@@ -141,14 +140,19 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleMouseLook()
     {
-
         float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
-        rotationX -= my;
+        rotationX -= mouseY;
         rotationX = Mathf.Clamp(rotationX, -90f, 90f);
 
         Camera.main.transform.localRotation = Quaternion.Euler(rotationX, 0f, 0f);
-        transform.Rotate(Vector3.up * mx);
+        transform.Rotate(Vector3.up * mouseX);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, dashSpeed * 0.1f);
     }
 }

@@ -1,4 +1,4 @@
-// GlintCollector.cs
+﻿// GlintCollector.cs
 using UnityEngine;
 using System;
 
